@@ -1,0 +1,13 @@
+name: m-dex
+version: 0.1.0
+
+authors:
+  - Ned Palacios <npdoesmc@gmail.com>
+
+dependencies:
+  myhtml:
+    github: kostya/myhtml
+
+crystal: 0.28.0
+
+license: MIT
