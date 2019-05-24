@@ -1,6 +1,6 @@
 # m-dex
 
-Crystal API wrapper for [MangaDex](https://mangadex.org).
+Rest API for [MangaDex](https://mangadex.org). Written on Crystal.
 
 ## Installation
 
@@ -15,22 +15,42 @@ Crystal API wrapper for [MangaDex](https://mangadex.org).
 2. Run `shards install`
 
 ## Usage
-
 ```crystal
 require "m-dex"
+
+mangadex = Mdex::Client.new
+
+# Get genre
+mangadex.genre(8)
+
+# Get manga info
+mangadex.manga(12345)
+
+# Get groups
+mangadex.group(18)
+
+# Get user profile
+mangadex.user(22407)
 ```
 
-TODO: Write usage instructions here
 
 ## Development
 
 ### Roadmap
 - [x] Manga Info page
-- [x] Updates
-- [ ] Genre
-- [ ] Group Info
-- [ ] User Info
-- [ ] Search
+- [x] Updates*1
+- [x] Genre*1
+- [x] Group Info*2
+- [x] User Info*2
+- [x] Search*3&4
+
+(*) - See **Issues** section.
+
+### Issues
+1. Pagination is yet to be implemented.
+2. Loading of group and user-curated chapters is still in progress.
+3. Search won't work unless a user logs in. Authentication will be implemented as soon as possible.
+4. Search is limited right to displaying fields.
 
 ## Contributing
 
