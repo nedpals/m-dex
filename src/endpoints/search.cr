@@ -81,7 +81,7 @@ module Mdex::Endpoints
           # search_field["default_value"] = field.attribute_by("value")
         end
 
-        puts search_form.to_json
+        search_form.to_json
       end
     end
   end
