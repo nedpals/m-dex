@@ -32,7 +32,7 @@ module Mdex::Endpoints
 
     private def self.parse_group_name_and_cover(nodes)
       # Get @@group name and cover image
-      node.each do |node|
+      nodes.each do |node|
         if (node.attribute_by("class") == "card-header d-flex align-items-center py-2")
           node.scope.nodes(:span).each do |span_node|
             case span_node.attribute_by("class")
