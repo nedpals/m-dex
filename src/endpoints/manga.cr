@@ -115,19 +115,6 @@ module Mdex::Endpoints
       @@manga.to_json
     end
 
-    private def self.get_chapter_images(id : ChapterId) : ChapterImages
-      response = Mdex::Client.get("api/?id=#{id}&type=chapter&baseURL=/api")
-      data = JSON.parse(response.body)
-      images_hash = {} of String => ChapterImagesInfo
-
-      images_hash["pages_length"] = data["page_array"].as_a.size
-      images_hash["server_url"] = data["server"].as_s === "/data/" ? "https://s4.mangadex.org/data/" : data["server"].as_s
-      images_hash["images"] = data["page_array"].as_a
-      images_hash["long_strip"] = data["long_strip"].as_i
-
-      images_hash.as(ChapterImages)
-    end
-
     private def self.parse_manga_chapters(html) : Chapters
       manga_chapters = [] of Chapter
       html.css(".chapter-container .row.no-gutters [data-id]").each_with_index do |node, idx|
@@ -135,7 +122,6 @@ module Mdex::Endpoints
         chapter_info = {} of String => ChapterInfo
 
         chapter_info["id"] = node.attributes["data-id"].to_i32.as(ChapterId)
-        chapter_info["pages"] = get_chapter_images(chapter_info["id"].as(ChapterId))
         root_nodes.each_with_index do |n, n_idx|
           field = n.scope
           case n_idx
