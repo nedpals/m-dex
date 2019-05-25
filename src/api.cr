@@ -1,5 +1,9 @@
 module Mdex
   module API
+    def chapter(id : Int32)
+      Mdex::Endpoints::Chapter.get(id)
+    end
+
     def manga(id : Int32)
       Mdex::Endpoints::Manga.get(id)
     end
