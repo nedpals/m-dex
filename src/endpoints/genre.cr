@@ -1,12 +1,14 @@
 module Mdex::Endpoints
   class Genre
+    alias MangaInfo = String | Int32 | Float64 | Hash(String, MangaInfo) | Array(MangaInfo)
+    alias GenreInfo = String | Int32 | MangaInfo | Float64 | Hash(String, GenreInfo) | Array(GenreInfo)
 
-    @@genre = Hash(String, String | Int32 | Array(Hash(String, String))).new
+    @@genre = Hash(String, GenreInfo).new
 
     def self.get(id : Int32)
       response = Mdex::Client.get("genre/#{id}")
       html = Myhtml::Parser.new(response.body)
-      manga_list = [] of Hash(String, String)
+      manga_list = [] of MangaInfo
 
       @@genre["id"] = id
 
@@ -33,7 +35,7 @@ module Mdex::Endpoints
     end
 
     private def self.get_manga_info(node)
-      manga_info = Hash(String, String).new
+      manga_info = Hash(String, MangaInfo).new
 
       # manga_info["id"] = node.attribute_by("data-id")
 
