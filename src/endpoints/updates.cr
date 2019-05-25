@@ -66,7 +66,7 @@ module Mdex::Endpoints
           chapter["language"] = parse_chapter_language(node)
         end
 
-        if (node.attribute_by("class") == "position-relative")
+        if (node.attribute_by("class") == "position-relative" && !node.attributes.has_key?("colspan"))
           chapter["translation_groups"] = parse_chapter_translation_groups(node)
         end
 
@@ -136,13 +136,14 @@ module Mdex::Endpoints
     end
 
     private def self.parse_chapter_translation_groups(node : Node) : ChapterTranslationGroups
-      chapter_translation_groups = [] of Hash(String, String)
+      chapter_translation_groups = [] of TranslationGroup
 
       node.scope.nodes(:a).each do |tg|
-        translation_group = {} of String => String
+        translation_group = {} of String => String | Int32
 
         translation_group["name"] = tg.inner_text
-        # translation_group["link"] = tg.attribute_by("href")
+        translation_group["link"] = tg.attribute_by("href").not_nil!
+        translation_group["id"] = tg.attribute_by("href").not_nil!.split("/", remove_empty: true)[1].to_i
 
         chapter_translation_groups << translation_group
       end
