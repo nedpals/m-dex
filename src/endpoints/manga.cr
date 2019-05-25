@@ -146,7 +146,8 @@ module Mdex::Endpoints
             field.nodes(:a).each do |t|
               group_arr << {
                 "name" => t.inner_text,
-                "url" => t.attributes["href"]
+                "url" => t.attributes["href"],
+                "id" => t.attributes["href"].split("/", remove_empty: true)[1].to_i
               }
             end
 
