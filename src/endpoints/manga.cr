@@ -18,9 +18,10 @@ module Mdex::Endpoints
     alias Genres = Array(Hash(String, Genre))
     alias Link = String | Nil
     alias Links = Array(Hash(String, Link))
-    alias Rating = String
+    alias Rating = Int32 | Float32 | Float64 | String
+    alias RatingHash = Hash(String, Rating)
     alias Ratings = Array(Rating)
-    alias Stat = String
+    alias Stat = Int32
     alias Stats = Array(Stat)
     alias Status = String
     alias Theme = String
@@ -32,17 +33,17 @@ module Mdex::Endpoints
     alias ChapterLink = String
     alias ChapterUploadDate = String
     alias ChapterLanguage = String
-    alias TranslationGroup = Hash(String, String)
+    alias TranslationGroup = Hash(String, String | Int32)
     alias ChapterTranslationGroups = Array(TranslationGroup)
-    alias ChapterUploader = Hash(String, String)
-    alias ChapterViews = String
+    alias ChapterUploader = Hash(String, String | Int32)
+    alias ChapterViews = String | Int32
     alias ChapterImagesInfo = String | Int32 | JSON::Any | Array(JSON::Any)
     alias ChapterImages = Hash(String, ChapterImagesInfo)
     alias ChapterInfo = ChapterImages | ChapterId | ChapterName | ChapterLink | ChapterUploadDate | ChapterLanguage | ChapterTranslationGroups | ChapterUploader | ChapterViews
     alias Chapter = Hash(String, ChapterInfo)
     alias Chapters = Array(Chapter)
 
-    alias MangaInfo = MangaId | AltNames | Artist | Author | CoverPhoto | Chapters | Demographics | Description | Formats | Genres | Links | Ratings | Stats | Status | Themes | Chapter | Hash(String, MangaInfo) | Array(MangaInfo)
+    alias MangaInfo = MangaId | AltNames | Artist | Author | CoverPhoto | Chapters | Demographics | Description | Formats | Genres | Links | Ratings | Rating | Stats | Status | Themes | Chapter | Hash(String, MangaInfo) | Array(MangaInfo)
     alias Node = Myhtml::Node | Nil
 
     @@manga = Hash(String, MangaInfo).new
