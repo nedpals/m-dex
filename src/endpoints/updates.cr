@@ -52,6 +52,8 @@ module Mdex::Endpoints
 
         if (node.attribute_by("colspan") == "6")
           manga["title"] = parse_manga_title(node)
+          manga["link"] = node.scope.nodes(:a).to_a[0].attribute_by("href").as(String)
+          manga["id"] = node.scope.nodes(:a).to_a[0].attribute_by("href").as(String).split("/", remove_empty: true)[1].to_i
         end
 
         if (node.attributes.empty?)
