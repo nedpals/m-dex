@@ -99,9 +99,9 @@ module Mdex::Endpoints
           when "stats"
             stats_arr = parse_stats(node)
 
-            @@manga["views"] = stats_arr[0].as(Stat)
-            @@manga["follows"] = stats_arr[1].as(Stat)
-            @@manga["total_chapters"] = stats_arr[2].as(Stat)
+            @@manga["views"] = stats_arr[0]
+            @@manga["follows"] = stats_arr[1]
+            @@manga["total_chapters"] = stats_arr[2]
           when "theme"
             @@manga["theme"] = parse_theme(node)
           when "description"
@@ -156,7 +156,8 @@ module Mdex::Endpoints
             uploader = field.nodes(:a).first
             chapter_info["uploader"] = {
               "name" => uploader.inner_text,
-              "url" => uploader.attributes["href"]
+              "url" => uploader.attributes["href"],
+              "id" => uploader.attributes["href"].split("/", remove_empty: true)[1].to_i
             }.as(ChapterUploader)
           when 9
             views = field.nodes(:span).first

@@ -61,9 +61,9 @@ module Mdex::Endpoints
             when 1
               td_stats = td_node.scope.nodes(:li).map(&.inner_text).to_a
 
-              @@group["views"] = td_stats[0].lstrip
-              @@group["follows"] = td_stats[1].lstrip
-              @@group["total_chapters"] = td_stats[2].lstrip
+              @@group["views"] = td_stats[0].lstrip.tr(",", "").to_i
+              @@group["follows"] = td_stats[1].lstrip.tr(",", "").to_i
+              @@group["total_chapters"] = td_stats[2].lstrip.tr(",", "").to_i
             when 2
               group_links = {} of String | Nil => String | Nil
 
