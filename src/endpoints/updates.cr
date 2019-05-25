@@ -5,20 +5,23 @@ module Mdex::Endpoints
     # Type definitions for Manga Info
     alias MangaCoverImage = String
     alias MangaTitle = String
+    alias MangaLink = String
+    alias MangaId = Int32
     alias ChapterName = String
+    alias ChapterId = Int32
     alias ChapterLink = String
     alias ChapterLanguage = String
-    alias TranslationGroup = Hash(String, String)
+    alias TranslationGroup = Hash(String, String | Int32)
     alias ChapterTranslationGroups = Array(TranslationGroup)
-    alias ChapterUploader = String
-    alias ChapterViews = String
+    alias ChapterUploader = Hash(String, String | Int32)
+    alias ChapterViews = Int32
     alias ChapterUploadDate = String
 
-    alias ChapterInfo = ChapterName | ChapterLink | ChapterLanguage | ChapterTranslationGroups | ChapterUploader | ChapterViews | ChapterUploadDate
+    alias ChapterInfo = ChapterName | ChapterId | ChapterLink | ChapterLanguage | ChapterTranslationGroups | ChapterUploader | ChapterViews | ChapterUploadDate
     alias Chapter = Hash(String, ChapterInfo)
 
     alias Chapters = Array(Chapter)
-    alias MangaInfo = MangaCoverImage | MangaTitle | Chapters
+    alias MangaInfo = MangaCoverImage | MangaTitle | MangaLink | MangaId | Chapters
     alias Manga = Hash(String, MangaInfo)
 
     alias MangaList = Array(Manga)
