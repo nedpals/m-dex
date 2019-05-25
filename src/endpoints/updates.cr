@@ -60,6 +60,7 @@ module Mdex::Endpoints
 
           chapter["name"] = chapter_info[0]
           chapter["link"] = chapter_info[1]
+          chapter["id"] = chapter_info[1].split("/", remove_empty: true)[1].to_i
         end
 
         if (node.attribute_by("class") == "text-center" && next_node.attribute_by("class") == "position-relative")
