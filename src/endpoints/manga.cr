@@ -55,7 +55,7 @@ module Mdex::Endpoints
 
       # Get manga cover image
       cover_photo_path = html.css(".card-body .row .col-xl-3 img").map(&.attribute_by("src")).to_a[0]
-      @@manga["cover_photo"] = "https://mangadex.org/#{cover_photo_path}".as(CoverPhoto)
+      @@manga["cover_photo"] = "#{Mdex::Client.base_url}#{cover_photo_path.not_nil!.lchop}".as(CoverPhoto)
 
       # Get manga name
       @@manga["name"] = html.css(".card .card-header span:nth-child(2)").map(&.inner_text).to_a[0]

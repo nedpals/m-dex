@@ -45,7 +45,7 @@ module Mdex::Endpoints
         end
 
         if (node.attribute_by("class") == "card-img-bottom")
-          @@group["cover_image"] = node.attribute_by("src")
+          @@group["cover_image"] = "#{Mdex::Client.base_url}#{node.attribute_by("src").not_nil!.lchop}"
         end
       end
     end
