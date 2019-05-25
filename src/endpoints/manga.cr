@@ -158,7 +158,7 @@ module Mdex::Endpoints
             }.as(ChapterUploader)
           when 9
             views = field.nodes(:span).first
-            chapter_info["views"] = views.inner_text.as(ChapterViews)
+            chapter_info["views"] = views.inner_text.tr(",", "").to_i.as(ChapterViews)
           end
         end
 
@@ -202,7 +202,7 @@ module Mdex::Endpoints
 
         genre = {} of String => Genre
         genre["name"] = n.inner_text
-        genre["id"] = genre_href.split("/", remove_empty: true)[1]
+        genre["id"] = genre_href.split("/", remove_empty: true)[1].to_i
         genres_arr << genre
       end
 
@@ -234,7 +234,15 @@ module Mdex::Endpoints
     end
 
     private def self.parse_ratings(node : Node) : Ratings
-      ratings_arr = node.scope.nodes(:ul).first.scope.nodes(:li).map(&.inner_text).map(&.strip).to_a
+      ratings_arr = [] of Rating
+
+      node.scope.nodes(:ul).first.scope.nodes(:li).each_with_index do |rating, rating_idx|
+        if (rating_idx != 2)
+          ratings_arr << rating.inner_text.strip.as(Rating)
+        else
+          ratings_arr << rating.inner_text.to_i.as(Rating)
+        end
+      end
 
       ratings_arr.as(Ratings)
     end
@@ -244,7 +252,11 @@ module Mdex::Endpoints
     end
 
     private def self.parse_stats(node : Node) : Stats
-      stats_arr = node.scope.nodes(:ul).first.scope.nodes(:li).map(&.inner_text).map(&.strip).to_a
+      stats_arr = [] of Stat
+
+      node.scope.nodes(:ul).first.scope.nodes(:li).each do |stat_int|
+        stats_arr << stat_int.inner_text.tr(",", "").to_i.as(Stat)
+      end
 
       stats_arr.as(Stats)
     end

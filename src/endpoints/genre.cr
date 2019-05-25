@@ -50,12 +50,12 @@ module Mdex::Endpoints
           info_node.scope.nodes(:li).each_with_index do |stats, stats_idx|
             case stats_idx
             when 0
-              manga_info["bayesian_rating"] = stats.scope.nodes(:span).to_a[2].inner_text.lchop
-              manga_info["total_votes"] = stats.scope.nodes(:span).to_a[2].attribute_by("title").not_nil!.rchop(" votes").lchop
+              manga_info["bayesian_rating"] = stats.scope.nodes(:span).to_a[2].inner_text.lchop.to_f
+              manga_info["total_votes"] = stats.scope.nodes(:span).to_a[2].attribute_by("title").not_nil!.rchop(" votes").lchop.tr(",", "").to_i
             when 1
-              manga_info["follows"] = stats.inner_text.lchop
+              manga_info["follows"] = stats.inner_text.lchop.tr(",", "").to_i
             when 2
-              manga_info["views"] = stats.inner_text.lchop
+              manga_info["views"] = stats.inner_text.lchop.tr(",", "").to_i
             end
           end
         when 7

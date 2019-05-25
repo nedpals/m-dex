@@ -158,7 +158,7 @@ module Mdex::Endpoints
     end
 
     private def self.parse_chapter_view_counter(node : Node) : ChapterViews
-      chapter_views = node.inner_text
+      chapter_views = node.inner_text.tr(",", "").to_i
 
       chapter_views.as(ChapterViews)
     end
