@@ -155,7 +155,12 @@ module Mdex::Endpoints
     end
 
     private def self.parse_chapter_uploader(node : Node) : ChapterUploader
-      chapter_uploader = node.child!.inner_text
+      uploader_info = node.child!
+      chapter_uploader = {} of String => String | Int32
+
+      chapter_uploader["name"] = uploader_info.inner_text
+      chapter_uploader["link"] = uploader_info.attributes["href"]
+      chapter_uploader["id"] = uploader_info.attributes["href"].split("/", remove_empty: true)[1].to_i
 
       chapter_uploader.as(ChapterUploader)
     end
