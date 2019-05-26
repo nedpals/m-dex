@@ -52,17 +52,17 @@ module Mdex::Endpoints
       manga = Hash(String, MangaInfo).new
       response = Mdex::Client.get("title/#{id}")
       html = Myhtml::Parser.new(response.body)
-      error_banner = html.css(".alert.alert-danger.text-center")
+      error_banner = html.css(".alert.alert-danger.text-center").to_a
 
-      if (id > 0 || error_banner.to_a.size == 0)
-        @@manga["id"] = id
-
-        parse_data(html)
-      else
+      if (id <= 0 || (error_banner.size == 1))
         {
           error_code: 404,
           message: error_banner.map(&.inner_text).to_a.join("").to_s
         }.to_json
+      else
+        @@manga["id"] = id
+
+        parse_data(html)
       end
     end
 

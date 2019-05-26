@@ -11,15 +11,15 @@ module Mdex::Endpoints
 
       error_banner = html.css(".alert.alert-danger.text-center")
 
-      if (id > 0 || error_banner.to_a.size == 0)
-        @@user["id"] = id
-
-        parse_data(html)
-      else
+      if (id <= 0 || (error_banner.size == 1))
         {
           error_code: 404,
           message: error_banner.map(&.inner_text).to_a.join("").to_s
         }.to_json
+      else
+        @@user["id"] = id
+
+        parse_data(html)
       end
     end
 
