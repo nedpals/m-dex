@@ -4,8 +4,12 @@ module Mdex
       Mdex::Endpoints::Chapter.get(id)
     end
 
-    def manga(id : Int32)
-      Mdex::Endpoints::Manga.get(id)
+    def manga(id : Int32, page_number : Int32 = 1)
+      if (page_number <= 1)
+        Mdex::Endpoints::Manga.get(id)
+      else
+        Mdex::Endpoints::MangaChapters.get(id, page_number)
+      end
     end
 
     def group(id : Int32)

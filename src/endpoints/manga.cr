@@ -28,6 +28,7 @@ module Mdex::Endpoints
     alias Themes = Array(Theme)
 
     # Chapter Type definitions
+    alias ChapterResultPage = Int32
     alias ChapterId = Int32
     alias ChapterName = String
     alias ChapterLink = String
@@ -39,7 +40,7 @@ module Mdex::Endpoints
     alias ChapterViews = String | Int32
     alias ChapterImagesInfo = String | Int32 | JSON::Any | Array(JSON::Any)
     alias ChapterImages = Hash(String, ChapterImagesInfo)
-    alias ChapterInfo = ChapterImages | ChapterId | ChapterName | ChapterLink | ChapterUploadDate | ChapterLanguage | ChapterTranslationGroups | ChapterUploader | ChapterViews
+    alias ChapterInfo = ChapterResultPage | ChapterImages | ChapterId | ChapterName | ChapterLink | ChapterUploadDate | ChapterLanguage | ChapterTranslationGroups | ChapterUploader | ChapterViews
     alias Chapter = Hash(String, ChapterInfo)
     alias Chapters = Array(Chapter)
 
@@ -61,7 +62,6 @@ module Mdex::Endpoints
         }.to_json
       else
         @@manga["id"] = id
-
         parse_data(html)
       end
     end
@@ -126,8 +126,24 @@ module Mdex::Endpoints
         end
       end
 
+      if (html.css("p.mt-3.text-center").to_a.size != 0)
+        parse_manga_chapters_pagination(html)
+      end
+
       @@manga["chapters"] = parse_manga_chapters(html)
       @@manga.to_json
+    end
+
+    private def self.parse_manga_chapters_pagination(html)
+      chap_info_text = html.css("p.mt-3.text-center").map(&.inner_text).to_a[0]
+      chapter_info = chap_info_text.clone.gsub(/\b(Showing|to|of|chapters)\b/, "").split(" ").select { |x| x.size != 0 }
+
+      pages = chapter_info[2].to_i / chapter_info[1].to_i
+      remainder = chapter_info[2].to_i % chapter_info[1].to_i
+
+      @@manga["chapter_list_max_results"] = chapter_info[1].to_i.as(ChapterResultPage)
+      @@manga["total_chapters"] = chapter_info[2].to_i.as(ChapterResultPage)
+      @@manga["chapter_pages_per_result"] = (remainder != 0 ? pages+1 : pages).as(ChapterResultPage)
     end
 
     private def self.parse_manga_chapters(html) : Chapters
