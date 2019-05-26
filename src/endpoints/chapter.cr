@@ -7,7 +7,20 @@ module Mdex::Endpoints
 
     def self.get(id : Int32)
       response = Mdex::Client.get("api/chapter/#{id}")
-      data = JSON.parse(response.body)
+
+      case response.status_code
+      when 200
+        data = JSON.parse(response.body)
+        parse_data(data)
+      when 404
+        {
+          error_code: 404,
+          message: "Resource request was not found."
+        }.to_json
+      end
+    end
+
+    private def self.parse_data(data : JSON::Any)
       images_hash = {} of String => ChapterImagesInfo
 
       images_hash["id"] = id

@@ -8,9 +8,23 @@ module Mdex::Endpoints
     def self.get(id : Int32)
       response = Mdex::Client.get("genre/#{id}")
       html = Myhtml::Parser.new(response.body)
-      manga_list = [] of MangaInfo
 
-      @@genre["id"] = id
+      error_banner = html.css(".alert.alert-danger.text-center")
+
+      if (id > 0 || error_banner.to_a.size == 0)
+        @@genre["id"] = id
+
+        parse_data(html)
+      else
+        {
+          error_code: 404,
+          message: error_banner.map(&.inner_text).to_a.join("").to_s
+        }.to_json
+      end
+    end
+
+    private def self.parse_data(html)
+      manga_list = [] of MangaInfo
 
       genre_card = html.css(".card").map(&.children).to_a[0]
 

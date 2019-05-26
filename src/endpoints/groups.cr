@@ -9,8 +9,21 @@ module Mdex::Endpoints
     def self.get(id : Int32)
       response = Mdex::Client.get("group/#{id}")
       html = Myhtml::Parser.new(response.body)
-      @@group["id"] = id
+      error_banner = html.css(".alert.alert-danger.text-center")
 
+      if (id > 0 || error_banner.to_a.size == 0)
+        @@group["id"] = id
+
+        parse_data(html)
+      else
+        {
+          error_code: 404,
+          message: error_banner.map(&.inner_text).to_a.join("").to_s
+        }.to_json
+      end
+    end
+
+    private def self.parse_data(html)
       card_nodes = html.css(".card").map(&.children).to_a
 
       parse_group_name_and_cover(card_nodes[0])

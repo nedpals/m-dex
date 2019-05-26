@@ -52,14 +52,28 @@ module Mdex::Endpoints
       manga = Hash(String, MangaInfo).new
       response = Mdex::Client.get("title/#{id}")
       html = Myhtml::Parser.new(response.body)
+      error_banner = html.css(".alert.alert-danger.text-center")
 
+      if (id > 0 || error_banner.to_a.size == 0)
+        @@manga["id"] = id
+
+        parse_data(html)
+      else
+        {
+          error_code: 404,
+          message: error_banner.map(&.inner_text).to_a.join("").to_s
+        }.to_json
+      end
+    end
+
+    def self.parse_data(html)
       # Get manga cover image
       cover_photo_path = html.css(".card-body .row .col-xl-3 img").map(&.attribute_by("src")).to_a[0]
       @@manga["cover_photo"] = "#{Mdex::Client.base_url}#{cover_photo_path.not_nil!.lchop}".as(CoverPhoto)
 
       # Get manga name
       @@manga["name"] = html.css(".card .card-header span:nth-child(2)").map(&.inner_text).to_a[0]
-      @@manga["id"] = id
+
 
       # Get manga info
       info_nodes_names = [] of String
