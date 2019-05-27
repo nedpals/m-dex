@@ -24,8 +24,8 @@ module Mdex
       Mdex::Endpoints::Genre.get(query, options, fields_only)
     end
 
-    def updates
-      Mdex::Endpoints::Updates.get
+    def updates(page_number : Int32 = 1)
+      Mdex::Endpoints::Updates.get(page_number)
     end
 
     def user(id : Int32)

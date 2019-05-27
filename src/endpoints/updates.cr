@@ -28,10 +28,35 @@ module Mdex::Endpoints
 
     alias Node = Myhtml::Node | Nil
 
-    def self.get
-      response = Mdex::Client.get("updates")
-      html = Myhtml::Parser.new(response.body)
+    @@updates = {} of String => MangaList | Int32 | String
 
+    def self.get(page_number : Int32 = 1)
+      response = Mdex::Client.get("updates/#{page_number}")
+      html = Myhtml::Parser.new(response.body)
+      error_banner = html.css(".alert.alert-warning.text-center").to_a
+
+      if (page_number <= 0 || (error_banner.size == 1))
+        {
+          error_code: 404,
+          message: error_banner.map(&.inner_text).to_a.join("").to_s
+        }.to_json
+      else
+        parse_data(html)
+        @@updates["current_page"] = page_number
+
+        if (page_number > @@updates["total_pages"].as(Int32))
+          {
+            error_code: 400,
+            message: "Maximum number of pages is #{@@updates["total_pages"]}"
+          }.to_json
+        else
+          @@updates.to_json
+        end
+      end
+    end
+
+    private def self.parse_data(html)
+      updates = {} of String => MangaList | Int32 | String
       # Removes all empty nodes
       mangas = html.css(".table-responsive table tbody tr td").to_a
       manga_list = [] of Manga
@@ -58,11 +83,11 @@ module Mdex::Endpoints
 
         if (node.attributes.empty?)
 
-          chapter_info = parse_chapter_name_and_link(node)
+          pagination_info = parse_chapter_name_and_link(node)
 
-          chapter["name"] = chapter_info[0]
-          chapter["link"] = chapter_info[1]
-          chapter["id"] = chapter_info[1].split("/", remove_empty: true)[1].to_i
+          chapter["name"] = pagination_info[0]
+          chapter["link"] = pagination_info[1]
+          chapter["id"] = pagination_info[1].split("/", remove_empty: true)[1].to_i
         end
 
         if (node.attribute_by("class") == "text-center" && next_node.attribute_by("class") == "position-relative")
@@ -107,7 +132,30 @@ module Mdex::Endpoints
         end
       end
 
-      manga_list.to_json
+      pagination_info = parse_updates_pagination(html)
+
+      updates["max_results_per_page"] = pagination_info[0]
+      updates["total_results"] = pagination_info[1]
+      updates["total_pages"] = pagination_info[2]
+
+      updates["results"] = manga_list
+
+      @@updates = updates
+    end
+
+    private def self.parse_updates_pagination(html)
+      pagination_info_text = html.css("p.mt-3.text-center").map(&.inner_text).to_a[0]
+      pagination_info = pagination_info_text.clone.gsub(/\b(Showing|to|of|chapters)\b/, "").split(" ").select { |x| x.size != 0 }
+      pagination_info_arr = [] of Int32
+
+      pages = pagination_info[2].tr(",", "").to_i.to_i / pagination_info[1].tr(",", "").to_i.to_i
+      remainder = pagination_info[2].tr(",", "").to_i.to_i % pagination_info[1].tr(",", "").to_i.to_i
+
+      pagination_info_arr << pagination_info[1].tr(",", "").to_i
+      pagination_info_arr << pagination_info[2].tr(",", "").to_i
+      pagination_info_arr << (remainder != 0 ? pages+1 : pages)
+
+      pagination_info_arr
     end
 
     private def self.parse_cover_image_url(node : Node) : MangaCoverImage
