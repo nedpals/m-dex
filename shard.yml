@@ -7,6 +7,8 @@ authors:
 dependencies:
   myhtml:
     github: kostya/myhtml
+  halite:
+    github: icyleaf/halite
 
 crystal: 0.28.0
 
