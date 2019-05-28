@@ -138,11 +138,11 @@ module Mdex::Endpoints
       chap_info_text = html.css("p.mt-3.text-center").map(&.inner_text).to_a[0]
       chapter_info = chap_info_text.clone.gsub(/\b(Showing|to|of|chapters)\b/, "").split(" ").select { |x| x.size != 0 }
 
-      pages = chapter_info[2].to_i / chapter_info[1].to_i
-      remainder = chapter_info[2].to_i % chapter_info[1].to_i
+      pages = chapter_info[2].tr(",", "").to_i.to_i / chapter_info[1].tr(",", "").to_i.to_i
+      remainder = chapter_info[2].tr(",", "").to_i.to_i % chapter_info[1].tr(",", "").to_i.to_i
 
-      @@manga["chapter_list_max_results"] = chapter_info[1].to_i.as(ChapterResultPage)
-      @@manga["total_chapters"] = chapter_info[2].to_i.as(ChapterResultPage)
+      @@manga["chapter_list_max_results"] = chapter_info[1].tr(",", "").to_i.to_i.as(ChapterResultPage)
+      @@manga["total_chapters"] = chapter_info[2].tr(",", "").to_i.to_i.as(ChapterResultPage)
       @@manga["chapter_pages_per_result"] = (remainder != 0 ? pages+1 : pages).as(ChapterResultPage)
     end
 
