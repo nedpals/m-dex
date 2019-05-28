@@ -273,7 +273,7 @@ module Mdex::Endpoints
         if (rating_idx != 2)
           ratings_arr << rating.inner_text.strip.as(Rating)
         else
-          ratings_arr << rating.inner_text.to_i.as(Rating)
+          ratings_arr << rating.inner_text.tr(",", "").to_i.as(Rating)
         end
       end
 
