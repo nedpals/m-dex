@@ -63,8 +63,6 @@ module Mdex::Endpoints
         root_nodes = node.scope.nodes(:div)
         chapter_info = {} of String => ChapterInfo
 
-        puts root_nodes.to_a
-
         chapter_info["id"] = node.attributes["data-id"].to_i32.as(ChapterId)
         root_nodes.each_with_index do |n, n_idx|
           field = n.scope
