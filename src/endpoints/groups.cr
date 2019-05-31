@@ -11,7 +11,7 @@ module Mdex::Endpoints
       html = Myhtml::Parser.new(response.body)
       error_banner = html.css(".alert.alert-danger.text-center")
 
-      if (id <= 0 || (error_banner.size == 1))
+      if (id <= 0 || error_banner.size == 1)
         {
           error_code: 404,
           message: error_banner.map(&.inner_text).to_a.join("").to_s
@@ -30,13 +30,13 @@ module Mdex::Endpoints
       parse_additional_group_info(card_nodes[1])
       parse_group_member_info(card_nodes[2])
 
-      # if (card_nodes[3]?)
-      #   card_nodes[3].each do |node|
-      #     if (node.attribute_by("class") == "card-body")
-      #       @@group["description"] == node.to_html
-      #     end
-      #   end
-      # end
+      if (card_nodes[3]?)
+        card_nodes[3].each do |node|
+          if (node.attribute_by("class") == "card-body")
+            @@group["description"] == node.to_html
+          end
+        end
+      end
 
       ## TODO: ADD RECENT CHAPTERS SECTION
 
@@ -81,7 +81,8 @@ module Mdex::Endpoints
               group_links = {} of String | Nil => String | Nil
 
               td_node.scope.nodes(:a).each do |link|
-                link_title = link.child!.attribute_by("title")
+                link_child = link.children.to_a.select { |x| x.tag_name == "span" }
+                link_title = link_child[0].attribute_by("title")
 
                 group_links[link_title] = link.attribute_by("href")
               end
@@ -98,13 +99,17 @@ module Mdex::Endpoints
     private def self.parse_group_member_info(nodes)
       nodes.each do |node|
         if (node.attribute_by("class") == "table table-sm ")
-          node.scope.nodes(:td).each_with_index do |td_node, td_idx|
-            case td_idx
-            when 0
+          node.scope.nodes(:tr).each_with_index do |tr_node, tr_idx|
+            tr_node_children = tr_node.children.to_a.select { |n| n.tag_name == "th" || n.tag_name == "td" }
+            field_name = tr_node_children[0].inner_text.downcase.rchop
+            td_node = tr_node_children[1]
+
+            case field_name
+            when "leader"
               a_link = td_node.scope.nodes(:a).to_a[0]
 
               @@group["leader"] = a_link.inner_text
-            when 1
+            when "members"
               members = [] of GroupMember
 
               td_node.scope.nodes(:a).each do |link|
@@ -112,11 +117,11 @@ module Mdex::Endpoints
               end
 
               @@group["members"] = members
-            when 2
+            when "upload restrictions"
               span_node = td_node.scope.nodes(:span).to_a[1]
 
               @@group["upload_restrictions"] = span_node.inner_text
-            when 3
+            when "group delay"
               @@group["upload_delay"] = td_node.child!.inner_text
             end
           end
