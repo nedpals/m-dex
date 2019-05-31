@@ -132,28 +132,34 @@ module Mdex::Endpoints
         end
       end
 
-      pagination_info = parse_updates_pagination(html)
-
-      updates["max_results_per_page"] = pagination_info[0]
-      updates["total_results"] = pagination_info[1]
-      updates["total_pages"] = pagination_info[2]
-
       updates["results"] = manga_list
+
+      pagination_info = parse_updates_pagination(html)
+      updates["max_results_per_page"] = pagination_info[0] || updates["results"].as(MangaList).size
+      updates["total_results"] = pagination_info[1] || updates["results"].as(MangaList).size
+      updates["total_pages"] = pagination_info[2] || 1
 
       @@updates = updates
     end
 
     private def self.parse_updates_pagination(html)
-      pagination_info_text = html.css("p.mt-3.text-center").map(&.inner_text).to_a[0]
-      pagination_info = pagination_info_text.clone.gsub(/\b(Showing|to|of|titles)\b/, "").split(" ").select { |x| x.size != 0 }
-      pagination_info_arr = [] of Int32
+      pagination_info_text = html.css("p.mt-3.text-center").map(&.inner_text).to_a[0]?
+      pagination_info_arr = [] of Int32 | Nil
 
-      pages = pagination_info[2].tr(",", "").to_i.to_i / pagination_info[1].tr(",", "").to_i.to_i
-      remainder = pagination_info[2].tr(",", "").to_i.to_i % pagination_info[1].tr(",", "").to_i.to_i
+      if (pagination_info_text)
+        pagination_info = pagination_info_text.clone.gsub(/\b(Showing|to|of|titles)\b/, "").split(" ").select { |x| x.size != 0 }
 
-      pagination_info_arr << pagination_info[1].tr(",", "").to_i
-      pagination_info_arr << pagination_info[2].tr(",", "").to_i
-      pagination_info_arr << (remainder != 0 ? pages+1 : pages)
+        pages = pagination_info[2].tr(",", "").to_i.to_i / pagination_info[1].tr(",", "").to_i.to_i
+        remainder = pagination_info[2].tr(",", "").to_i.to_i % pagination_info[1].tr(",", "").to_i.to_i
+
+        pagination_info_arr << pagination_info[1].tr(",", "").to_i
+        pagination_info_arr << pagination_info[2].tr(",", "").to_i
+        pagination_info_arr << (remainder != 0 ? pages+1 : pages)
+      else
+        pagination_info_arr << nil
+        pagination_info_arr << nil
+        pagination_info_arr << nil
+      end
 
       pagination_info_arr
     end
