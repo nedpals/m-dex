@@ -46,8 +46,15 @@ module Mdex::Endpoints
     end
 
     private def self.parse_data(html)
-      parse_manga_chapters_pagination(html)
       @@chapters["chapters"] = parse_chapters(html)
+
+      if (html.css("p.mt-3.text-center").to_a.size != 0)
+        parse_manga_chapters_pagination(html)
+      else
+        @@chapters["chapter_list_max_results"] = @@chapters["chapters"].as(Chapters).size
+        @@chapters["total_chapters"] = @@chapters["chapters"].as(Chapters).size.as(ChapterResultPage)
+        @@chapters["chapter_pages_per_result"] = 1.as(ChapterResultPage)
+      end
     end
 
     private def self.parse_chapters(html)
@@ -55,6 +62,8 @@ module Mdex::Endpoints
       html.css(".chapter-container .row.no-gutters [data-id]").each_with_index do |node, idx|
         root_nodes = node.scope.nodes(:div)
         chapter_info = {} of String => ChapterInfo
+
+        puts root_nodes.to_a
 
         chapter_info["id"] = node.attributes["data-id"].to_i32.as(ChapterId)
         root_nodes.each_with_index do |n, n_idx|
@@ -109,11 +118,11 @@ module Mdex::Endpoints
       chap_info_text = html.css("p.mt-3.text-center").map(&.inner_text).to_a[0]
       chapter_info = chap_info_text.clone.gsub(/\b(Showing|to|of|chapters)\b/, "").split(" ").select { |x| x.size != 0 }
 
-      pages = chapter_info[2].tr(",", "").to_i.to_i / chapter_info[1].tr(",", "").to_i.to_i
-      remainder = chapter_info[2].tr(",", "").to_i.to_i % chapter_info[1].tr(",", "").to_i.to_i
+      pages = chapter_info[2].tr(",", "").to_i / chapter_info[1].tr(",", "").to_i
+      remainder = chapter_info[2].tr(",", "").to_i % chapter_info[1].tr(",", "").to_i
 
-      @@chapters["chapter_list_max_results"] = chapter_info[1].tr(",", "").to_i.to_i.as(ChapterResultPage)
-      @@chapters["total_chapters"] = chapter_info[2].tr(",", "").to_i.to_i.as(ChapterResultPage)
+      @@chapters["chapter_list_max_results"] = chapter_info[1].tr(",", "").to_i.as(ChapterResultPage)
+      @@chapters["total_chapters"] = chapter_info[2].tr(",", "").to_i.as(ChapterResultPage)
       @@chapters["chapter_pages_per_result"] = (remainder != 0 ? pages+1 : pages).as(ChapterResultPage)
     end
   end
