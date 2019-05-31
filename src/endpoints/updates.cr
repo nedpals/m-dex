@@ -145,7 +145,7 @@ module Mdex::Endpoints
 
     private def self.parse_updates_pagination(html)
       pagination_info_text = html.css("p.mt-3.text-center").map(&.inner_text).to_a[0]
-      pagination_info = pagination_info_text.clone.gsub(/\b(Showing|to|of|chapters)\b/, "").split(" ").select { |x| x.size != 0 }
+      pagination_info = pagination_info_text.clone.gsub(/\b(Showing|to|of|titles)\b/, "").split(" ").select { |x| x.size != 0 }
       pagination_info_arr = [] of Int32
 
       pages = pagination_info[2].tr(",", "").to_i.to_i / pagination_info[1].tr(",", "").to_i.to_i
