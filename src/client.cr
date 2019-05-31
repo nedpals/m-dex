@@ -3,11 +3,10 @@ require "halite"
 module Mdex
   class Client
     include Mdex::API
-
-    @@base_url = "https://mangadex.org/"
     @@client = Halite::Client.new
+    @@base_url = String.new
 
-    def initialize; end;
+    def initialize(@@base_url : String = "https://mangadex.org/"); end
 
     def self.get(endpoint : String, params = {} of String => String)
       _params = HTTP::Params.encode(params)
