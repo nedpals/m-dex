@@ -12,15 +12,11 @@ module Mdex
     @@use_parser = true
     @@html = Myhtml::Parser.new("<html><body>test</body></html>")
 
-    def self.get(@@path : String, json : Bool = true)
+    def self.get(@@path : String)
       @@response = Mdex::Client.get(@@path)
       @@html = Myhtml::Parser.new(@@response.body)
 
-      if (json)
-        check_data.to_json
-      else
-        check_data
-      end
+      check_data.to_json
     end
 
     def self.check_data
