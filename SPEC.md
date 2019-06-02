@@ -1,5 +1,5 @@
 # M-dex JSON API Specification
-**First revision: 06/01/2019**
+**First revision: 06/02/2019**
 
 This specification will serve as a guide for contributors when testing and designing new measures for generating data in the M-dex library.
 
@@ -15,11 +15,8 @@ Words with a caret symbol (^) in the end denotes optional fields. While words in
 - Use plural words for field names. (Ex: An array of `group` should be `groups`)
 - Alternatively, you can also connect `_array` in the end. (Like `page_array`)
 
-### Bools
+### Bools / Booleans
 - Field names must be prefixed with `is_` or `has_` (Example: `is_info_paginated`).
-
-### Floating points
-- For now, floating point numbers must be converted to `String` for unknown reasons in the compiler.
 
 ### ID's
 - Should be `Int32`-typed.
