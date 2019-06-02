@@ -8,6 +8,12 @@ Library for parsing [MangaDex](https://mangadex.org) data. Written on [Crystal](
 - Compiled language yet with the ease of Ruby
 - I haven't made a proper project written in Crystal so why not xD
 
+## There is an existing API already, why create one?
+Pardon with my shallow reasons but here's what I think why I created one.
+- Some fields needs additional request for retrieving the full information.
+- Some parts are are not 1:1 the same as the page
+- Undocumented. 
+
 ## Web API Demo
 
 You can try the REST API via [https://mangadex-api.nedpals.xyz](https://mangadex-api.nedpals.xyz) that uses this library for getting the data. This is an alternative to the official API Mangadex is offering and is much more cleaner and readable compared to the former. ~~As of now, expect to have some pages displaying error 500 for fetching reasons.~~
@@ -169,7 +175,7 @@ mdex.dummy(1234, "jimmy")
 - [ ] MDList
 - [ ] Forums
 - [ ] Tests
-- [ ] Following the spec*6
+- [ ] Spec implementation*6
 
 (*) - See **Issues** section.
 
