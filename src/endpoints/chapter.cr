@@ -1,21 +1,20 @@
 require "json"
 
 module Mdex::Endpoints
-  class Chapter
-    alias ChapterImagesInfo = String | Int32 | JSON::Any | Array(JSON::Any)
-    alias ChapterImages = Hash(String, ChapterImagesInfo)
+  class Chapter < Mdex::Endpoint
 
-    @@images_hash = {} of String => ChapterImagesInfo
+    @@id = 0
 
-    def self.get(id : Int32)
-      response = Mdex::Client.get("api/chapter/#{id}")
+    def self.get(@@id : Int32)
+      use_parser = false
 
+      super("api/chapter/#{@@id}")
+    end
+
+    def self.check_data
       case response.status_code
       when 200
-        @@images_hash["id"] = id
-
-        data = JSON.parse(response.body)
-        parse_data(data)
+        display_data
       when 404
         {
           error_code: 404,
@@ -24,15 +23,23 @@ module Mdex::Endpoints
       end
     end
 
-    private def self.parse_data(data : JSON::Any)
-      @@images_hash["manga_id"] = data["manga_id"]
-      @@images_hash["image_hash"] = data["hash"]
-      @@images_hash["page_length"] = data["page_array"].as_a.size
-      @@images_hash["server_url"] = data["server"].as_s === "/data/" ? "https://mangadex.org/data/" : data["server"].as_s
-      @@images_hash["pages"] = data["page_array"].as_a
-      @@images_hash["long_strip"] = data["long_strip"].as_i
+    def self.display_data
+      parsed_data = JSON.parse(response.body)
 
-      @@images_hash.as(ChapterImages).to_json
+      insert_ids(data)
+      parse_and_insert_data(data, parsed_data)
+    end
+
+    def self.insert_ids(data)
+      data["id"] = @@id
+    end
+
+    def self.parse_and_insert_data(data, json)
+      data["manga_id"] = json["manga_id"].as_i
+      data["page_length"] = json["page_array"].as_a.size
+      data["server_url"] = json["server"].as_s === "/data/" ? "https://s4.mangadex.org/data/" : json["server"].as_s
+      data["pages"] = json["page_array"].as_a.map { |x| x.as_s }
+      data["long_strip"] = json["long_strip"].as_i
     end
   end
 end
