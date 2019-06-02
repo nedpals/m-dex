@@ -7,7 +7,7 @@ module Mdex::Endpoints
     @@page_number = 1
 
     def self.get(@@id : Int32, @@title_slug : String, @@page_number : Int32 = 1)
-      super("title/#{@@id}/#{@@title_slug}/#{@@page_number}")
+      super("title/#{@@id}/#{@@title_slug}/chapters/#{@@page_number}")
     end
 
     def self.error_criteria
