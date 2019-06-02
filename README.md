@@ -2,9 +2,9 @@
 
 Library for parsing [MangaDex](https://mangadex.org) data. Written on [Crystal](https://crystal-lang.org).
 
-## Why write a parser in Crystal
+## Why write it in Crystal?
 - Efficient memory usage (1mb when idle, 7mb when active)
-- Fast processing of data even in single-core
+- Fast processing of data even when only operating in single-core mode
 - Compiled language yet with the ease of Ruby
 - I haven't made a proper project written in Crystal so why not xD
 
@@ -12,7 +12,7 @@ Library for parsing [MangaDex](https://mangadex.org) data. Written on [Crystal](
 
 You can try the REST API via [https://mangadex-api.nedpals.xyz](https://mangadex-api.nedpals.xyz) that uses this library for getting the data. This is an alternative to the official API Mangadex is offering and is much more cleaner and readable compared to the former. ~~As of now, expect to have some pages displaying error 500 for fetching reasons.~~
 
-This REST API is running on a [Heroku](https://heroku.com) Hobby dyno with [Redis](https://github.com/antirez/redis) for caching data. The dyno that costs $7/per month was made free for one year as part of Github Student perks. If you wish to sponsor a server, contact me through my e-mail that can be found at my Github profile. Not accepting donations for now.
+This REST API is running on a [Heroku](https://heroku.com) Hobby dyno with [Redis](https://github.com/antirez/redis) for caching data. The dyno that costs $7/per month was made free for one year as part of Github Student perks. If you wish to sponsor a server, contact me through my e-mail which can be found at my Github profile. Not accepting donations for now.
 
 ## Installation
 
@@ -44,6 +44,8 @@ mangadex.group(18)
 # Get user profile
 mangadex.user(22407)
 ```
+See the endpoint methods found at the [src/api.cr](src/api.cr) file for complete details.
+
 ## Specification
 An [API specification](SPEC.md) has been created to test the library correctly and meet the goals of this project. For contributors, this is a very important guide if you are going to work with creating new endpoints that involvese extracting and displaying the data. Revisions and idea proposals are being discussed and clarified before getting approved so please file an issue first before changing the specification.
 
@@ -94,6 +96,7 @@ class Dummy < Mdex::Endpoint
     # You may refer here: https://github.com/kostya/myhtml
   end 
 end
+```
 
 From there, the data `Hash` object will be automatically transformed into a JSON string. To access the endpoint you have created, you can just call the `get` method of the `Dummy` endpoint in this example.
 
@@ -166,6 +169,7 @@ mdex.dummy(1234, "jimmy")
 - [ ] MDList
 - [ ] Forums
 - [ ] Tests
+- [ ] Following the spec*6
 
 (*) - See **Issues** section.
 
