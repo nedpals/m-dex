@@ -4,11 +4,11 @@ module Mdex
       Mdex::Endpoints::Chapter.get(id)
     end
 
-    def manga(id : Int32, page_number : Int32 = 1, chapters_only : Bool = false)
-      if (page_number <= 0 && !chapters_only)
-        Mdex::Endpoints::Manga.get(id)
+    def manga(id : Int32, title_slug : String = "", page_number : Int32 = 1, chapters_only : Bool = false)
+      if (chapters_only && page_number >= 1)
+        Mdex::Endpoints::MangaChapters.get(id, title_slug, page_number)
       else
-        Mdex::Endpoints::MangaChapters.get(id, page_number)
+        Mdex::Endpoints::Manga.get(id, title_slug)
       end
     end
 

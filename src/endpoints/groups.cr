@@ -1,93 +1,78 @@
 module Mdex::Endpoints
-  class Group
-    alias GroupLinks = Hash(String | Nil, String | Nil)
-    alias GroupMember = String
-    alias GroupInfo = GroupLinks | Array(GroupMember) | String | Int32 | Nil
+  class Group < Mdex::Endpoint
+    @@id = 0
 
-    @@group = Hash(String, GroupInfo).new
-
-    def self.get(id : Int32)
-      response = Mdex::Client.get("group/#{id}")
-      html = Myhtml::Parser.new(response.body)
-      error_banner = html.css(".alert.alert-danger.text-center")
-
-      if (id <= 0 || error_banner.size == 1)
-        {
-          error_code: 404,
-          message: error_banner.map(&.inner_text).to_a.join("").to_s
-        }.to_json
-      else
-        @@group["id"] = id
-
-        parse_data(html)
-      end
+    def self.get(@@id : Int32)
+      super("group/#{@@id}")
     end
 
-    private def self.parse_data(html)
-      card_nodes = html.css(".card").map(&.children).to_a
+    def self.error_criteria
+      @@id <= 0
+    end
 
-      parse_group_name_and_cover(card_nodes[0])
-      parse_additional_group_info(card_nodes[1])
-      parse_group_member_info(card_nodes[2])
+    def self.insert_ids(data)
+      data["id"] = @@id
+    end
 
-      if (card_nodes[3]?)
-        card_nodes[3].each do |node|
-          if (node.attribute_by("class") == "card-body")
-            @@group["description"] == node.to_html
-          end
-        end
+    def self.parse_and_insert_data(data, html)
+      card_nodes = html.css(".card").map(&.children).to_a.map do |child|
+        child.select { |c| c.tag_name != "-text" }
+      end
+
+      parse_group_name_and_cover(card_nodes[0], data)
+      parse_additional_group_info(card_nodes[1], data)
+      parse_group_member_info(card_nodes[2], data)
+
+      if (card_nodes[3]? != nil)
+        data["description"] = card_nodes[3].to_a[1].children.map(&.to_html).to_a.join("")
       end
 
       ## TODO: ADD RECENT CHAPTERS SECTION
-
-      @@group.to_json
     end
 
-    private def self.parse_group_name_and_cover(nodes)
-      # Get @@group name and cover image
+    private def self.parse_group_name_and_cover(nodes, data)
       nodes.each do |node|
         if (node.attribute_by("class") == "card-header d-flex align-items-center py-2")
           node.scope.nodes(:span).each do |span_node|
             case span_node.attribute_by("class")
             when "mx-1"
-              @@group["name"] = span_node.inner_text
+              data["name"] = span_node.inner_text.not_nil!
             when "rounded flag"
-              @@group["language"] = span_node.attribute_by("title")
+              data["language"] = span_node.attribute_by("title").not_nil!
             end
           end
         end
 
         if (node.attribute_by("class") == "card-img-bottom")
-          @@group["cover_image"] = "#{Mdex::Client.base_url}#{node.attribute_by("src").not_nil!.lchop}"
+          data["cover_image"] = "#{Mdex::Client.base_url}#{node.attribute_by("src").not_nil!.lchop}"
         end
       end
     end
 
-    private def self.parse_additional_group_info(nodes)
-      # Get @@group info
+    private def self.parse_additional_group_info(nodes, data)
       nodes.each do |node|
         if (node.attribute_by("class") == "table table-sm ")
           node.scope.nodes(:td).each_with_index do |td_node, td_idx|
             case td_idx
             when 0
-              @@group["alternate_names"] = td_node.inner_text
+              data["alternate_names"] = td_node.inner_text
             when 1
               td_stats = td_node.scope.nodes(:li).map(&.inner_text).to_a
 
-              @@group["views"] = td_stats[0].lstrip.tr(",", "").to_i
-              @@group["follows"] = td_stats[1].lstrip.tr(",", "").to_i
-              @@group["total_chapters"] = td_stats[2].lstrip.tr(",", "").to_i
+              data["views"] = td_stats[0].lstrip.tr(",", "").to_i
+              data["follows"] = td_stats[1].lstrip.tr(",", "").to_i
+              data["total_chapters"] = td_stats[2].lstrip.tr(",", "").to_i
             when 2
-              group_links = {} of String | Nil => String | Nil
+              group_links = {} of String => FieldType
 
               td_node.scope.nodes(:a).each do |link|
                 link_child = link.children.to_a.select { |x| x.tag_name == "span" }
-                link_title = link_child[0].attribute_by("title")
+                link_title = link_child[0].attribute_by("title").not_nil!
 
-                group_links[link_title] = link.attribute_by("href")
+                group_links[link_title] = link.attribute_by("href").not_nil!
               end
 
-              @@group["links"] = group_links
+              data["links"] = group_links
             # when 3
               ## TODO: Add follow link
             end
@@ -96,7 +81,7 @@ module Mdex::Endpoints
       end
     end
 
-    private def self.parse_group_member_info(nodes)
+    private def self.parse_group_member_info(nodes, data)
       nodes.each do |node|
         if (node.attribute_by("class") == "table table-sm ")
           node.scope.nodes(:tr).each_with_index do |tr_node, tr_idx|
@@ -108,21 +93,21 @@ module Mdex::Endpoints
             when "leader"
               a_link = td_node.scope.nodes(:a).to_a[0]
 
-              @@group["leader"] = a_link.inner_text
+              data["leader"] = a_link.inner_text
             when "members"
-              members = [] of GroupMember
+              members = [] of FieldType
 
               td_node.scope.nodes(:a).each do |link|
                 members << link.inner_text
               end
 
-              @@group["members"] = members
+              data["members"] = members
             when "upload restrictions"
               span_node = td_node.scope.nodes(:span).to_a[1]
 
-              @@group["upload_restrictions"] = span_node.inner_text
+              data["upload_restrictions"] = span_node.inner_text
             when "group delay"
-              @@group["upload_delay"] = td_node.child!.inner_text
+              data["upload_delay"] = td_node.child!.inner_text
             end
           end
         end

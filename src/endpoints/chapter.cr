@@ -16,10 +16,7 @@ module Mdex::Endpoints
       when 200
         display_data
       when 404
-        {
-          error_code: 404,
-          message: "Requested resource was not found."
-        }.to_json
+        display_error(404, "Requested resource was not found.")
       end
     end
 
@@ -28,6 +25,8 @@ module Mdex::Endpoints
 
       insert_ids(data)
       parse_and_insert_data(data, parsed_data)
+
+      data
     end
 
     def self.insert_ids(data)
@@ -35,11 +34,13 @@ module Mdex::Endpoints
     end
 
     def self.parse_and_insert_data(data, json)
+      chapter_pages = json["page_array"].as_a.map { |x| x.as_s.as(FieldType) }
+
       data["manga_id"] = json["manga_id"].as_i
-      data["page_length"] = json["page_array"].as_a.size
+      data["chapter_length"] = json["page_array"].as_a.size
       data["server_url"] = json["server"].as_s === "/data/" ? "https://s4.mangadex.org/data/" : json["server"].as_s
-      data["pages"] = json["page_array"].as_a.map { |x| x.as_s }
-      data["long_strip"] = json["long_strip"].as_i
+      data["pages"] = chapter_pages.as(FieldType)
+      data["is_long_strip"] = !json["long_strip"].as_i.zero?
     end
   end
 end
